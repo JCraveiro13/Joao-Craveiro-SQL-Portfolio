@@ -1,133 +1,225 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/joaoc/OneDrive/Desktop/Random/Programming/Data Science/SQL Portfolio/Covid_Info.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="150"/><column_width id="3" width="12705"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,11:mainCovidDeaths"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="CovidDeaths" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="101"/><column index="2" value="108"/><column index="3" value="112"/><column index="4" value="111"/><column index="5" value="120"/><column index="6" value="126"/><column index="7" value="123"/><column index="8" value="235"/><column index="9" value="139"/><column index="10" value="136"/><column index="11" value="248"/><column index="12" value="254"/><column index="13" value="251"/><column index="14" value="300"/><column index="15" value="267"/><column index="16" value="264"/><column index="17" value="300"/><column index="18" value="197"/><column index="19" value="137"/><column index="20" value="265"/><column index="21" value="155"/><column index="22" value="283"/><column index="23" value="251"/><column index="24" value="300"/><column index="25" value="269"/><column index="26" value="300"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="CovidVaccinations" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="101"/><column index="2" value="108"/><column index="3" value="112"/><column index="4" value="111"/><column index="5" value="119"/><column index="6" value="116"/><column index="7" value="273"/><column index="8" value="270"/><column index="9" value="228"/><column index="10" value="300"/><column index="11" value="145"/><column index="12" value="165"/><column index="13" value="148"/><column index="14" value="197"/><column index="15" value="203"/><column index="16" value="261"/><column index="17" value="157"/><column index="18" value="194"/><column index="19" value="300"/><column index="20" value="300"/><column index="21" value="300"/><column index="22" value="300"/><column index="23" value="300"/><column index="24" value="300"/><column index="25" value="300"/><column index="26" value="300"/><column index="27" value="188"/><column index="28" value="207"/><column index="29" value="137"/><column index="30" value="166"/><column index="31" value="166"/><column index="32" value="173"/><column index="33" value="187"/><column index="34" value="245"/><column index="35" value="223"/><column index="36" value="178"/><column index="37" value="158"/><column index="38" value="246"/><column index="39" value="300"/><column index="40" value="173"/><column index="41" value="296"/><column index="42" value="300"/><column index="43" value="300"/><column index="44" value="184"/><column index="45" value="300"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table><table schema="main" name="PercentPopulationVaccinated" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="108"/><column index="2" value="92"/><column index="3" value="120"/><column index="4" value="194"/><column index="5" value="211"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">-- Working with CovidDeaths table initially
-
-SELECT * FROM CovidDeaths
-ORDER BY 3, 4;
-
--- Selecting data I will be using over the course of the project, for visualisation purposes.
-
-SELECT Location, date, total_cases, new_cases, total_deaths, population
-FROM CovidDeaths
-ORDER BY 1, 2; 
-
-
--- Looking at the Total Cases vs Total Deaths
--- Shows the likelihood of dying when contracting covid, for each day since the beggining of the pandemic
-SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
-FROM CovidDeaths; 
-
--- Looking specifically at Portugal (my home country)
-
-SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
-FROM CovidDeaths 
-WHERE location like 'Portugal'
-order by 1, 2;
-
-
-
--- Looking specifically at England
-
-SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
-FROM CovidDeaths 
-WHERE location like 'England'
-order by 1, 2;
-
--- Seems like there is no data for England's cases or deaths, however, I've noticed there is data for the United Kingdom.
-
-SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
-FROM CovidDeaths 
-WHERE location like 'United Kingdom'
-order by 1, 2;
-
--- Looking at Total Cases vs Population
--- Shows what percentage got Covid
-
-SELECT Location, date, population, total_cases, (total_cases/population)*100 AS CovidPercentage
-FROM CovidDeaths 
-WHERE location like 'United Kingdom'
-order by 1, 2;
-
--- Looking at countries with highest Infection Rate compared to Population
-
-SELECT Location, population, MAX(total_cases) AS HighestInfectionCount, MAX(total_cases/population)*100 AS MaximumPopulationInfected
-FROM CovidDeaths 
-WHERE population&gt;10000000
-GROUP BY 1, 2
-order by 4 DESC;
-
--- Showing Countries with Highest Death count per population.
-
-SELECT location, MAX(total_deaths) AS TotalDeathCount
-FROM CovidDeaths
-WHERE continent is not null
-GROUP BY location
-ORDER BY 2 DESC;
-
--- Breaking down by Continent. It seems that rows where 'continent' is null is where we can find the correct data for each continent.
-
-SELECT location, MAX(total_deaths) AS TotalDeathCount
-FROM CovidDeaths
-WHERE continent is null
-GROUP BY location
-ORDER BY 2 DESC;
-
--- Showing the continents with the highest infection count
-
-SELECT continent, location, MAX(total_cases) AS TotalCaseCount
-FROM CovidDeaths
-WHERE continent is null
-GROUP BY location
-ORDER BY 2 DESC;
-
--- Global Numbers
-
-SELECT SUM(NEW_cases) AS DailyNewCases, SUM(new_deaths) AS DailyDeaths, SUM(cast(new_deaths as real))/SUM(cast(new_cases as REAL)) * 100  AS GlobalDailyDeathPercentage
-FROM CovidDeaths 
-WHERE continent is null
-GROUP BY date
-order by 1, 2;
-
--- Now moving onto the CovidVaccinations table
-
-SELECT * FROM CovidVaccinations
-ORDER BY 3, 4;
-
--- Joining both tables together
-
--- SELECT * 
--- FROM CovidDeaths dea Join CovidVaccinations vac
--- ON dea.location = vac.location
--- AND dea.date = vac.date;
-
-
--- Looking at Total Population vs Vaccination
-
-WITH PopVac AS(
-	SELECT dea.continent, dea.location, dea.population, vac.new_vaccinations,
-	SUM(cast(vac.new_vaccinations as real)) OVER (Partition by dea.location ORDER BY 
-	dea.location, dea.date) AS RollingVaccinations
-	FROM CovidDeaths AS dea Join CovidVaccinations AS vac
-	ON dea.location = vac.location AND dea.date = vac.date
-	WHERE dea.continent is not null AND dea.location = 'United Kingdom'
-	ORDER BY 2
-)
-SELECT *, ((cast (PopVac.RollingVaccinations as real))/(PopVac.population)) * 100 AS PercentVaccinated
-FROM PopVac
-WHERE PopVac.continent is not null
-ORDER BY PercentVaccinated DESC
-
--- This results in a maximum percentage of 220% due to the existance of the 2nd and 3rd vaccine dose.
-
--- Creating view to store data for later visualisations regarding rolling vaccinated population
-
-CREATE VIEW PercentPopulationVaccinated 
-AS
-SELECT dea.continent, dea.location, dea.population, vac.new_vaccinations,
-	SUM(cast(vac.new_vaccinations as real)) OVER (Partition by dea.location ORDER BY 
-	dea.location, dea.date) AS RollingVaccinations
-FROM CovidDeaths AS dea 
-Join CovidVaccinations AS vac
-	ON dea.location = vac.location AND dea.date = vac.date
-	WHERE dea.continent is not null AND dea.location = 'United Kingdom'
-	ORDER BY 2;
-	
+/*
+
+Covid 19 Data Exploration 
+Skills used: Joins, CTE's, Temp Tables, Windows Functions, Aggregate Functions, Creating Views, Converting Data Types
+
+*/
+
+SELECT * FROM CovidDeaths
+
+ORDER BY 3, 4;
+
+
+
+-- Select Data that we are going to be starting with
+
+
+
+SELECT Location, date, total_cases, new_cases, total_deaths, population
+
+FROM CovidDeaths
+
+ORDER BY 1, 2; 
+
+
+-- Total Cases vs Total Deaths
+-- Shows likelihood of dying if you contract covid in your country
+
+SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
+
+FROM CovidDeaths; 
+
+
+
+-- Looking specifically at Portugal (my home country)
+
+
+
+SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
+
+FROM CovidDeaths 
+
+WHERE location like 'Portugal'
+
+order by 1, 2;
+
+
+
+-- Looking specifically at England
+
+SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
+
+FROM CovidDeaths 
+
+WHERE location like 'England'
+
+order by 1, 2;
+
+
+-- Seems like there is no data for England's cases or deaths, however, I've noticed there is data for the United Kingdom.
+
+
+SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 AS DeathPercentage
+
+FROM CovidDeaths 
+
+WHERE location like 'United Kingdom'
+
+order by 1, 2;
+
+
+
+-- Total Cases vs Population
+-- Shows what percentage of population infected with Covid
+
+SELECT Location, date, population, total_cases, (total_cases/population)*100 AS CovidPercentage
+
+FROM CovidDeaths 
+
+WHERE location like 'United Kingdom'
+
+order by 1, 2;
+
+
+
+-- Countries with Highest Infection Rate compared to Population
+
+SELECT Location, population, MAX(total_cases) AS HighestInfectionCount, MAX(total_cases/population)*100 AS MaximumPopulationInfected
+
+FROM CovidDeaths 
+
+WHERE population&gt;10000000
+
+GROUP BY 1, 2
+
+order by 4 DESC;
+
+
+
+-- Countries with Highest Death Count per Population
+
+SELECT location, MAX(total_deaths) AS TotalDeathCount
+
+FROM CovidDeaths
+
+WHERE continent is not null
+
+GROUP BY location
+
+ORDER BY 2 DESC;
+
+
+
+-- BREAKING THINGS DOWN BY CONTINENT
+
+
+-- Showing contintents with the highest death count per population
+
+SELECT location, MAX(total_deaths) AS TotalDeathCount
+
+FROM CovidDeaths
+
+WHERE continent is null
+
+GROUP BY location
+
+ORDER BY 2 DESC;
+
+
+
+-- Showing the continents with the highest infection count
+
+SELECT continent, location, MAX(total_cases) AS TotalCaseCount
+
+FROM CovidDeaths
+
+WHERE continent is null
+
+GROUP BY location
+
+ORDER BY 2 DESC;
+
+
+
+-- Global Numbers
+
+
+
+SELECT SUM(NEW_cases) AS DailyNewCases, SUM(new_deaths) AS DailyDeaths, SUM(cast(new_deaths as real))/SUM(cast(new_cases as REAL)) * 100  AS GlobalDailyDeathPercentage
+
+FROM CovidDeaths 
+
+WHERE continent is null
+
+GROUP BY date
+
+order by 1, 2;
+
+
+
+-- Now moving onto the CovidVaccinations table
+
+SELECT * FROM CovidVaccinations
+
+ORDER BY 3, 4;
+
+
+-- Total Population vs Vaccinations
+-- Shows Percentage of Population that has recieved at least one Covid Vaccine
+-- Using CTE to perform Calculation on Partition By
+
+WITH PopVac AS(
+
+	SELECT dea.continent, dea.location, dea.population, vac.new_vaccinations,
+
+	SUM(cast(vac.new_vaccinations as real)) OVER (Partition by dea.location ORDER BY 
+
+	dea.location, dea.date) AS RollingVaccinations
+
+	FROM CovidDeaths AS dea Join CovidVaccinations AS vac
+
+	ON dea.location = vac.location AND dea.date = vac.date
+
+	WHERE dea.continent is not null AND dea.location = 'United Kingdom'
+
+	ORDER BY 2
+
+)
+
+SELECT *, ((cast (PopVac.RollingVaccinations as real))/(PopVac.population)) * 100 AS PercentVaccinated
+
+FROM PopVac
+
+WHERE PopVac.continent is not null
+
+ORDER BY PercentVaccinated DESC
+
+-- This results in a maximum percentage of 220% due to the existance of the 2nd and 3rd vaccine dose.
+
+
+
+- Creating View to store data for later visualizations
+
+CREATE VIEW PercentPopulationVaccinated 
+
+AS
+
+SELECT dea.continent, dea.location, dea.population, vac.new_vaccinations,
+
+	SUM(cast(vac.new_vaccinations as real)) OVER (Partition by dea.location ORDER BY 
+
+	dea.location, dea.date) AS RollingVaccinations
+
+FROM CovidDeaths AS dea 
+
+Join CovidVaccinations AS vac
+
+	ON dea.location = vac.location AND dea.date = vac.date
+
+	WHERE dea.continent is not null AND dea.location = 'United Kingdom'
+
+	ORDER BY 2;
+
+	
+
 SELECT * FROM PercentPopulationVaccinated;</sql><current_tab id="0"/></tab_sql></sqlb_project>
