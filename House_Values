@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/joaoc/OneDrive/Desktop/Random/Programming/Data Science/Online-Data-Store/Home_Values_2.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="150"/><column_width id="3" width="1450"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,15:mainhome_value_data"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="home_value_data" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="103"/><column index="2" value="77"/><column index="3" value="62"/><column index="4" value="300"/><column index="5" value="139"/><column index="6" value="80"/><column index="7" value="84"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">---- Data Preparation
+
+---- 1. Column Names were in first row of the data
+
+---- 2. Changed datatypes into Integer for zipcodes and home_values. The rest are TEXT types.
+
+
+
+---- Data Exploration
+
+
+
+---- 1. How many distinct zip codes are in this dataset?
+
+
+
+SELECT COUNT(DISTINCT(zip_code)) AS 'Distinct Zip Codes'
+
+FROM home_value_data;
+
+
+
+---- There are 15452 distinct Zip Codes in the Data set.
+
+
+
+---- 2. How many zip codes are from each state?
+
+
+
+SELECT state, Count(Distinct(zip_code)) AS 'Distinct Zip Codes'
+
+FROM home_value_data
+
+GROUP BY 1
+
+ORDER BY 2 DESC;
+
+
+
+
+
+---- 3. What range of years are represented in the data?
+
+
+
+WITH date_year AS (
+
+SELECT substring(date, 1, 4) AS year
+
+FROM home_value_data
+
+) 
+
+
+
+SELECT MIN(year) AS 'Oldest', MAX(year) AS 'Newest'
+
+FROM date_year;
+
+
+
+---- Years represented in the data range from 1996 to 2018
+
+
+
+---- 4. Using the most recent month of data available, what is the range of estimated home values across the nation?
+
+
+
+SELECT date, ROUND(AVG(value), 3) AS 'Average House Price'
+
+FROM home_value_data
+
+GROUP BY date
+
+ORDER BY date DESC
+
+LIMIT 1;
+
+
+
+------ Intermediate Challenge ------
+
+
+
+---- 5. What is the percent change in average home values from 2007 to 2017 by state? 
+
+
+
+WITH older_value AS (
+
+SELECT state, ROUND(AVG(value)) AS old_value
+
+FROM home_value_data
+
+WHERE substring(date, 1, 4) = '2007'
+
+GROUP BY state
+
+), newer_value AS (
+
+SELECT state, ROUND(AVG(value)) AS new_value
+
+FROM home_value_data
+
+WHERE substring(date, 1, 4) = '2017'
+
+GROUP BY state
+
+)
+
+
+
+SELECT older_value.state, ((new_value - old_value)/old_value) AS percent_change
+
+FROM older_value JOIN newer_value
+
+GROUP BY older_value.state
+
+ORDER BY percent_change DESC;
+
+
+
+---- 5.1 How about from 1997 to 2017?
+
+
+
+WITH older_value AS (
+
+SELECT state, ROUND(AVG(value)) AS old_value
+
+FROM home_value_data
+
+WHERE substring(date, 1, 4) = '1997'
+
+GROUP BY state
+
+), newer_value AS (
+
+SELECT state, ROUND(AVG(value)) AS new_value
+
+FROM home_value_data
+
+WHERE substring(date, 1, 4) = '2007'
+
+GROUP BY state
+
+)
+
+
+
+SELECT older_value.state, ((new_value - old_value)/old_value) AS percent_change
+
+FROM older_value JOIN newer_value
+
+GROUP BY older_value.state
+
+ORDER BY percent_change DESC;
+
+
+
+---- How would you describe the trend in home values for each state from 1997 to 2017? 
+
+---- How about from 2007 to 2017? 
+
+---- Which states would you recommend for making real estate investments?</sql><sql name="SQL 2">WITH older_value AS (
+
+SELECT state, ROUND(AVG(value)) AS old_value
+
+FROM home_value_data
+
+WHERE substring(date, 1, 4) = '1997'
+
+GROUP BY state
+
+), newer_value AS (
+
+SELECT state, ROUND(AVG(value)) AS new_value
+
+FROM home_value_data
+
+WHERE substring(date, 1, 4) = '2007'
+
+GROUP BY state
+
+)
+
+
+
+SELECT older_value.state, ((new_value - old_value)/old_value) AS percent_change
+
+FROM older_value JOIN newer_value
+
+GROUP BY older_value.state
+
+ORDER BY percent_change DESC;</sql><current_tab id="0"/></tab_sql></sqlb_project>
